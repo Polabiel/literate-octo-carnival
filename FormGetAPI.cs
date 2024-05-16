@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,9 +14,14 @@ namespace WinFormGetAPI
 {
     public partial class FormGetAPI : Form
     {
+        private HttpClient _client;
+
         public FormGetAPI()
         {
             InitializeComponent();
+            _client = new HttpClient();
+            string uri = txtURI.Text;
+            _client.BaseAddress = new Uri(uri);
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -22,15 +29,29 @@ namespace WinFormGetAPI
             this.Close();
         }
 
-        private void btnRequest_Click(object sender, EventArgs e)
+        private async Task<string> GetDataAsync()
         {
-            // Criar o RestClient
+            try
+            {
+                HttpResponseMessage response = await _client.GetAsync("");
+                string res = await response.Content.ReadAsStringAsync();
 
-            // Setar o endPoint dele psrs a URI desejada
+                CEP cep = JsonConvert.DeserializeObject<CEP>(res);
 
-            // Fazer a chamada do método que executa o request
+                return cep.ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return string.Empty;
+            }
+        }
 
-            // atualizar a tela com a resposta do usuário
+        private async void btnRequest_Click(object sender, EventArgs e)
+        {
+            string data = await GetDataAsync();
+
+            txtResponseCep.Text = data;
         }
     }
 }
