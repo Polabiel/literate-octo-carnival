@@ -29,7 +29,7 @@ namespace WinFormGetAPI
             this.Close();
         }
 
-        private async Task<string> GetDataAsync()
+        private async Task<CEP> GetDataAsync()
         {
             try
             {
@@ -38,20 +38,29 @@ namespace WinFormGetAPI
 
                 CEP cep = JsonConvert.DeserializeObject<CEP>(res);
 
-                return cep.ToString();
+                return cep;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("An error occurred: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return string.Empty;
+                return null;
             }
         }
 
         private async void btnRequest_Click(object sender, EventArgs e)
         {
-            string data = await GetDataAsync();
+            CEP data = await GetDataAsync();
 
-            txtResponseCep.Text = data;
+            if (data != null)
+            {
+                txtResponseCep.Text = data.cep;
+                field_logradouro.Text = data.logradouro;
+                field_complemento.Text = data.complemento;
+                field_bairro.Text = data.bairro;
+                field_localidade.Text = data.localidade;
+                field_uf.Text = data.uf;
+                field_ibge.Text = data.ibge;
+            }
         }
     }
 }
